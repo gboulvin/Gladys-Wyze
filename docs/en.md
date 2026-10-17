@@ -1,0 +1,129 @@
+# Wyze
+
+Control your [Wyze](https://www.wyze.com) devices from Gladys Assistant: bulbs,
+light strips, plugs, cameras and Wyze Sense sensors, with scene triggers and
+actions and two dashboard widgets.
+
+## Supported devices
+
+| Wyze device                                         | In Gladys                                                               |
+| --------------------------------------------------- | ----------------------------------------------------------------------- |
+| White bulb (WLPA19, HL_HWB2)                        | On/off, brightness, color temperature                                   |
+| Color bulb (WLPA19C, BR30) and light strip (HL_LSL) | On/off, brightness, color temperature, color — **local control** on LAN |
+| Plug and outdoor plug (WLPP1, WLPP1CFH, WLPPO)      | On/off (one device per outlet)                                          |
+| Cameras (Cam v2/v3/v4, Pan, Outdoor, Doorbell...)   | Latest image, motion, power, siren, motion detection                    |
+| Floodlight Pro, Battery Cam Pro, Cam OG, Pan v4     | Latest image and motion (their controls use another Wyze API)           |
+| Wyze Sense contact sensor (DWS3U, DWS2U)            | Open/closed, low battery                                                |
+| Wyze Sense motion sensor (PIR3U, PIR2U)             | Motion, low battery                                                     |
+
+Other Wyze devices (locks, thermostat, vacuum, scales...) are ignored.
+
+## Before you start: create a Wyze API key
+
+Wyze only lets third-party applications log in with a personal API key, on
+top of your email and password. The key also spares you the two-factor code.
+
+1. Open the [Wyze developer console](https://developer-api-console.wyze.com/#/apikey/view)
+   and sign in with your Wyze account.
+2. Create an API key. Copy the **KEY ID** and the **API KEY**: the API key is
+   shown only once.
+3. Keep them for the configuration below. You can revoke the key from the
+   same console at any time.
+
+## Configuration
+
+1. Open the **Configuration** tab of the integration.
+2. Fill in your Wyze **email**, **password**, **API key id** and **API key**.
+3. Optionally change the **refresh interval** (60 seconds by default, 30 at
+   least): how often the states and the camera events are read.
+4. Save, then click **Test the connection**: it logs in and tells you how many
+   compatible devices it found.
+5. Open the **Discovery** tab and add the devices you want in Gladys.
+
+Only the devices you add are read at each refresh, which spares the Wyze
+cloud. **Synchronize now** forces a refresh.
+
+## Local control
+
+Wyze is a cloud service, with one exception: color bulbs and light strips
+accept commands on your local network. When **Prefer the local connection**
+is on (the default), their commands go straight to the bulb; the states are
+still read from the cloud.
+
+The badge of each device tells which channel it uses: _local_, _cloud_, or
+_unreachable_ when Wyze reports the device offline. An orange dot means a
+local command failed and the bulb went through the cloud instead; Gladys tries
+the local network again after 5 minutes. Gladys must be able to reach the bulb
+on TCP port 88 (same network, no client isolation on the Wi-Fi).
+
+## Cameras
+
+The Wyze cloud offers no live video: the camera image in Gladys is the latest
+thumbnail Wyze keeps, usually the one of the last event. It is refreshed at
+each new event. Gladys only accepts images up to 150 KB; a larger thumbnail is
+skipped (see the logs).
+
+The **Motion** feature of a camera goes to 1 for about 30 seconds when the
+camera records a motion event, then back to 0. The detection depends on your
+camera settings in the Wyze app (detection zones, sensitivity, notifications).
+The objects (person, vehicle, pet, package) need a Cam Plus subscription.
+
+## Scenes
+
+The integration adds its own cards to the scene editor (Gladys 5.1 or later).
+
+Triggers:
+
+- **Wyze camera event** — a camera recorded an event. Filter on the camera,
+  the event (motion, sound, smoke alarm, CO alarm, doorbell, face, other) and
+  the recognized object (person, vehicle, pet, package, nothing). Empty filters
+  match anything. The following actions can read
+  `{{triggerEvent.data.event}}` and `{{triggerEvent.data.object}}`.
+- **Wyze device online/offline** — a device lost its cloud connection, or got
+  it back. Variable: `{{triggerEvent.data.status}}` (`offline` / `online`).
+
+Actions:
+
+- **Wyze camera siren** — start or stop the siren of a camera.
+- **Wyze motion detection** — enable or disable the motion detection of a
+  camera (for instance when the alarm is armed).
+- **Wyze camera image** — publish the latest image of a camera, then send it
+  with the Gladys "send a camera image" action.
+- **Refresh Wyze devices** — read the devices now; returns the number of
+  devices and of devices online.
+
+A camera that cannot run an action (Floodlight Pro...) returns `false` instead
+of failing, so the next actions can depend on it.
+
+## Dashboard
+
+Two widgets are available in the dashboard editor:
+
+- **Wyze overview** — devices, online and offline, open doors and windows,
+  cloud status, last refresh, last camera event, and a **Sync now** button.
+- **Wyze camera** — pick a camera in the widget settings: latest image, live
+  motion, connection, last event, and siren buttons (the siren asks for
+  confirmation).
+
+## Troubleshooting
+
+- **"Wyze refused the login"** — check the email, the password, and that the
+  API key id and API key come from the same key. After a refused login,
+  Gladys waits 15 minutes before trying again (Wyze locks accounts that log in
+  too often); saving the configuration retries at once.
+- **A device does not update** — check it is online in the Wyze app; the
+  states are read at each refresh interval.
+- **A color bulb is always on the cloud** — check that Gladys can reach the
+  bulb on TCP port 88, or turn off **Prefer the local connection**.
+- **Logs** — open the integration logs from Gladys (or `docker logs`), with
+  `LOG_LEVEL=debug` for the details. Passwords and tokens are never logged.
+
+## Privacy
+
+Your credentials are stored by Gladys in its configuration. The Wyze session
+(access and refresh tokens) is kept in the integration's private volume, so a
+restart does not log in again. The integration only talks to the Wyze cloud,
+and to your color bulbs on the local network.
+
+This integration is not affiliated with Wyze Labs. It uses the same cloud API
+as the Wyze app, which Wyze may change without notice.

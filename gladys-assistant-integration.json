@@ -1,0 +1,702 @@
+{
+  "manifest_version": 1,
+  "type": "device",
+  "name": "Wyze",
+  "description": {
+    "en": "Control your Wyze bulbs, light strips, plugs, cameras and Sense sensors.",
+    "fr": "Pilotez vos ampoules, rubans LED, prises, caméras et capteurs Wyze.",
+    "de": "Steuern Sie Wyze-Lampen, LED-Streifen, Steckdosen, Kameras und Sensoren.",
+    "es": "Controle sus bombillas, tiras LED, enchufes, cámaras y sensores Wyze."
+  },
+  "version": "0.0.0",
+  "docker_image": "ghcr.io/gboulvin/gladys-wyze:0.0.0",
+  "gladys_version": ">=5.1.0",
+  "cover_image": "https://raw.githubusercontent.com/gboulvin/Gladys-Wyze/main/cover.png",
+  "categories": ["lighting", "security", "appliances"],
+  "transports": ["local", "cloud"],
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "Connect your Wyze account",
+        "fr": "Connectez votre compte Wyze",
+        "de": "Wyze-Konto verbinden",
+        "es": "Conecte su cuenta Wyze"
+      },
+      "description": {
+        "en": "Wyze requires a personal API key in addition to your email and password. Create it in the Wyze developer console with your Wyze account: copy the key id and the API key below. The API key also avoids the two-factor prompt.",
+        "fr": "Wyze exige une clé d'API personnelle en plus de votre e-mail et de votre mot de passe. Créez-la dans la console développeur Wyze avec votre compte Wyze, puis copiez ci-dessous l'identifiant de la clé et la clé d'API. La clé évite aussi la double authentification.",
+        "de": "Wyze verlangt zusätzlich zu E-Mail und Passwort einen persönlichen API-Key. Erstellen Sie ihn in der Wyze-Entwicklerkonsole mit Ihrem Wyze-Konto und kopieren Sie Key-ID und API-Key unten hinein. Der API-Key erspart auch die Zwei-Faktor-Abfrage.",
+        "es": "Wyze exige una clave de API personal además de su correo y contraseña. Créela en la consola de desarrolladores de Wyze con su cuenta Wyze y copie abajo el ID de la clave y la clave de API. La clave también evita la verificación en dos pasos."
+      },
+      "links": [
+        {
+          "url": "https://developer-api-console.wyze.com/#/apikey/view",
+          "label": {
+            "en": "Wyze developer console",
+            "fr": "Console développeur Wyze",
+            "de": "Wyze-Entwicklerkonsole",
+            "es": "Consola de desarrolladores de Wyze"
+          }
+        }
+      ]
+    },
+    {
+      "key": "email",
+      "type": "string",
+      "label": {
+        "en": "Wyze email",
+        "fr": "E-mail Wyze",
+        "de": "Wyze-E-Mail",
+        "es": "Correo de Wyze"
+      },
+      "placeholder": {
+        "en": "e.g. you@example.com",
+        "fr": "ex. vous@exemple.fr",
+        "de": "z. B. sie@beispiel.de",
+        "es": "p. ej. usted@ejemplo.es"
+      },
+      "required": true
+    },
+    {
+      "key": "password",
+      "type": "secret",
+      "label": {
+        "en": "Wyze password",
+        "fr": "Mot de passe Wyze",
+        "de": "Wyze-Passwort",
+        "es": "Contraseña de Wyze"
+      },
+      "required": true
+    },
+    {
+      "key": "key_id",
+      "type": "string",
+      "label": {
+        "en": "API key id",
+        "fr": "Identifiant de la clé d'API",
+        "de": "API-Key-ID",
+        "es": "ID de la clave de API"
+      },
+      "description": {
+        "en": "The \"KEY ID\" of the Wyze developer console.",
+        "fr": "Le « KEY ID » de la console développeur Wyze.",
+        "de": "Die „KEY ID“ der Wyze-Entwicklerkonsole.",
+        "es": "El «KEY ID» de la consola de desarrolladores de Wyze."
+      },
+      "placeholder": {
+        "en": "e.g. 2b6e3c1a-...",
+        "fr": "ex. 2b6e3c1a-...",
+        "de": "z. B. 2b6e3c1a-...",
+        "es": "p. ej. 2b6e3c1a-..."
+      },
+      "required": true
+    },
+    {
+      "key": "api_key",
+      "type": "secret",
+      "label": {
+        "en": "API key",
+        "fr": "Clé d'API",
+        "de": "API-Key",
+        "es": "Clave de API"
+      },
+      "description": {
+        "en": "The \"API KEY\" shown once when the key is created.",
+        "fr": "L'« API KEY » affichée une seule fois à la création de la clé.",
+        "de": "Der „API KEY“, der beim Erstellen einmalig angezeigt wird.",
+        "es": "La «API KEY» que se muestra una sola vez al crear la clave."
+      },
+      "required": true
+    },
+    {
+      "key": "poll_frequency",
+      "type": "number",
+      "label": {
+        "en": "Refresh interval (s)",
+        "fr": "Intervalle de rafraîchissement (s)",
+        "de": "Aktualisierungsintervall (s)",
+        "es": "Intervalo de actualización (s)"
+      },
+      "description": {
+        "en": "How often the states and the camera events are read from the Wyze cloud, in seconds (30 minimum).",
+        "fr": "Fréquence de lecture des états et des événements caméra sur le cloud Wyze, en secondes (30 minimum).",
+        "de": "Wie oft Zustände und Kameraereignisse aus der Wyze-Cloud gelesen werden, in Sekunden (mindestens 30).",
+        "es": "Frecuencia de lectura de los estados y eventos de cámara en la nube de Wyze, en segundos (mínimo 30)."
+      },
+      "required": false,
+      "default": 60,
+      "min": 30,
+      "max": 3600
+    }
+  ],
+  "actions": [
+    {
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
+      "description": {
+        "en": "Log in to Wyze and count the supported devices.",
+        "fr": "Se connecte à Wyze et compte les appareils compatibles.",
+        "de": "Meldet sich bei Wyze an und zählt die unterstützten Geräte.",
+        "es": "Inicia sesión en Wyze y cuenta los dispositivos compatibles."
+      },
+      "timeout_seconds": 60
+    },
+    {
+      "key": "sync_now",
+      "label": {
+        "en": "Synchronize now",
+        "fr": "Synchroniser maintenant",
+        "de": "Jetzt synchronisieren",
+        "es": "Sincronizar ahora"
+      },
+      "description": {
+        "en": "Read the Wyze devices and their states right away.",
+        "fr": "Lit immédiatement les appareils Wyze et leurs états.",
+        "de": "Liest die Wyze-Geräte und ihre Zustände sofort ein.",
+        "es": "Lee de inmediato los dispositivos Wyze y sus estados."
+      },
+      "timeout_seconds": 120
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "camera_event",
+      "label": {
+        "en": "Wyze camera event",
+        "fr": "Événement caméra Wyze",
+        "de": "Wyze-Kameraereignis",
+        "es": "Evento de cámara Wyze"
+      },
+      "description": {
+        "en": "A Wyze camera recorded an event: motion, sound, alarm, doorbell... with the object recognized by Cam Plus.",
+        "fr": "Une caméra Wyze a enregistré un événement : mouvement, son, alarme, sonnette... avec l'objet reconnu par Cam Plus.",
+        "de": "Eine Wyze-Kamera hat ein Ereignis aufgezeichnet: Bewegung, Geräusch, Alarm, Klingel... mit dem von Cam Plus erkannten Objekt.",
+        "es": "Una cámara Wyze registró un evento: movimiento, sonido, alarma, timbre... con el objeto reconocido por Cam Plus."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          }
+        },
+        {
+          "key": "event",
+          "type": "multi_select",
+          "label": {
+            "en": "Event",
+            "fr": "Événement",
+            "de": "Ereignis",
+            "es": "Evento"
+          },
+          "options": [
+            {
+              "value": "motion",
+              "label": {
+                "en": "Motion",
+                "fr": "Mouvement",
+                "de": "Bewegung",
+                "es": "Movimiento"
+              }
+            },
+            {
+              "value": "sound",
+              "label": {
+                "en": "Sound",
+                "fr": "Son",
+                "de": "Geräusch",
+                "es": "Sonido"
+              }
+            },
+            {
+              "value": "smoke",
+              "label": {
+                "en": "Smoke alarm",
+                "fr": "Alarme fumée",
+                "de": "Rauchalarm",
+                "es": "Alarma de humo"
+              }
+            },
+            {
+              "value": "co",
+              "label": {
+                "en": "CO alarm",
+                "fr": "Alarme CO",
+                "de": "CO-Alarm",
+                "es": "Alarma de CO"
+              }
+            },
+            {
+              "value": "doorbell",
+              "label": {
+                "en": "Doorbell",
+                "fr": "Sonnette",
+                "de": "Türklingel",
+                "es": "Timbre"
+              }
+            },
+            {
+              "value": "face",
+              "label": {
+                "en": "Face",
+                "fr": "Visage",
+                "de": "Gesicht",
+                "es": "Cara"
+              }
+            },
+            {
+              "value": "other",
+              "label": {
+                "en": "Other",
+                "fr": "Autre",
+                "de": "Andere",
+                "es": "Otro"
+              }
+            }
+          ]
+        },
+        {
+          "key": "object",
+          "type": "multi_select",
+          "label": {
+            "en": "Recognized object",
+            "fr": "Objet reconnu",
+            "de": "Erkanntes Objekt",
+            "es": "Objeto reconocido"
+          },
+          "options": [
+            {
+              "value": "person",
+              "label": {
+                "en": "Person",
+                "fr": "Personne",
+                "de": "Person",
+                "es": "Persona"
+              }
+            },
+            {
+              "value": "vehicle",
+              "label": {
+                "en": "Vehicle",
+                "fr": "Véhicule",
+                "de": "Fahrzeug",
+                "es": "Vehículo"
+              }
+            },
+            {
+              "value": "pet",
+              "label": {
+                "en": "Pet",
+                "fr": "Animal",
+                "de": "Haustier",
+                "es": "Mascota"
+              }
+            },
+            {
+              "value": "package",
+              "label": {
+                "en": "Package",
+                "fr": "Colis",
+                "de": "Paket",
+                "es": "Paquete"
+              }
+            },
+            {
+              "value": "none",
+              "label": {
+                "en": "Nothing recognized",
+                "fr": "Rien de reconnu",
+                "de": "Nichts erkannt",
+                "es": "Nada reconocido"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "event",
+          "type": "string",
+          "label": {
+            "en": "Event",
+            "fr": "Événement",
+            "de": "Ereignis",
+            "es": "Evento"
+          }
+        },
+        {
+          "key": "object",
+          "type": "string",
+          "label": {
+            "en": "Recognized object",
+            "fr": "Objet reconnu",
+            "de": "Erkanntes Objekt",
+            "es": "Objeto reconocido"
+          }
+        }
+      ]
+    },
+    {
+      "key": "device_connection",
+      "label": {
+        "en": "Wyze device online/offline",
+        "fr": "Appareil Wyze en/hors ligne",
+        "de": "Wyze-Gerät online/offline",
+        "es": "Dispositivo Wyze conectado/desconectado"
+      },
+      "description": {
+        "en": "A Wyze device lost its connection to the Wyze cloud, or got it back.",
+        "fr": "Un appareil Wyze a perdu sa connexion au cloud Wyze, ou l'a retrouvée.",
+        "de": "Ein Wyze-Gerät hat die Verbindung zur Wyze-Cloud verloren oder wiederhergestellt.",
+        "es": "Un dispositivo Wyze perdió su conexión con la nube de Wyze, o la recuperó."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          }
+        },
+        {
+          "key": "status",
+          "type": "select",
+          "label": {
+            "en": "Status",
+            "fr": "État",
+            "de": "Status",
+            "es": "Estado"
+          },
+          "options": [
+            {
+              "value": "offline",
+              "label": {
+                "en": "Offline",
+                "fr": "Hors ligne",
+                "de": "Offline",
+                "es": "Desconectado"
+              }
+            },
+            {
+              "value": "online",
+              "label": {
+                "en": "Back online",
+                "fr": "De nouveau en ligne",
+                "de": "Wieder online",
+                "es": "De nuevo en línea"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "status",
+          "type": "string",
+          "label": {
+            "en": "Status",
+            "fr": "État",
+            "de": "Status",
+            "es": "Estado"
+          }
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "camera_siren",
+      "label": {
+        "en": "Wyze camera siren",
+        "fr": "Sirène de caméra Wyze",
+        "de": "Sirene der Wyze-Kamera",
+        "es": "Sirena de cámara Wyze"
+      },
+      "description": {
+        "en": "Start or stop the siren of a Wyze camera.",
+        "fr": "Déclenche ou arrête la sirène d'une caméra Wyze.",
+        "de": "Startet oder stoppt die Sirene einer Wyze-Kamera.",
+        "es": "Activa o detiene la sirena de una cámara Wyze."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": true
+        },
+        {
+          "key": "state",
+          "type": "select",
+          "label": {
+            "en": "Siren",
+            "fr": "Sirène",
+            "de": "Sirene",
+            "es": "Sirena"
+          },
+          "required": true,
+          "default": "on",
+          "options": [
+            {
+              "value": "on",
+              "label": {
+                "en": "On",
+                "fr": "Activé",
+                "de": "An",
+                "es": "Activado"
+              }
+            },
+            {
+              "value": "off",
+              "label": {
+                "en": "Off",
+                "fr": "Désactivé",
+                "de": "Aus",
+                "es": "Desactivado"
+              }
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "key": "success",
+          "type": "boolean",
+          "label": {
+            "en": "Done",
+            "fr": "Effectué",
+            "de": "Erledigt",
+            "es": "Hecho"
+          }
+        }
+      ]
+    },
+    {
+      "key": "camera_motion_detection",
+      "label": {
+        "en": "Wyze motion detection",
+        "fr": "Détection de mouvement Wyze",
+        "de": "Wyze-Bewegungserkennung",
+        "es": "Detección de movimiento Wyze"
+      },
+      "description": {
+        "en": "Enable or disable the motion detection of a Wyze camera.",
+        "fr": "Active ou désactive la détection de mouvement d'une caméra Wyze.",
+        "de": "Aktiviert oder deaktiviert die Bewegungserkennung einer Wyze-Kamera.",
+        "es": "Activa o desactiva la detección de movimiento de una cámara Wyze."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": true
+        },
+        {
+          "key": "state",
+          "type": "select",
+          "label": {
+            "en": "Detection",
+            "fr": "Détection",
+            "de": "Erkennung",
+            "es": "Detección"
+          },
+          "required": true,
+          "default": "on",
+          "options": [
+            {
+              "value": "on",
+              "label": {
+                "en": "On",
+                "fr": "Activé",
+                "de": "An",
+                "es": "Activado"
+              }
+            },
+            {
+              "value": "off",
+              "label": {
+                "en": "Off",
+                "fr": "Désactivé",
+                "de": "Aus",
+                "es": "Desactivado"
+              }
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "key": "success",
+          "type": "boolean",
+          "label": {
+            "en": "Done",
+            "fr": "Effectué",
+            "de": "Erledigt",
+            "es": "Hecho"
+          }
+        }
+      ]
+    },
+    {
+      "key": "camera_snapshot",
+      "label": {
+        "en": "Wyze camera image",
+        "fr": "Image de caméra Wyze",
+        "de": "Bild der Wyze-Kamera",
+        "es": "Imagen de cámara Wyze"
+      },
+      "description": {
+        "en": "Publish the latest image of a Wyze camera, to send it with the next action.",
+        "fr": "Publie la dernière image d'une caméra Wyze, pour l'envoyer à l'action suivante.",
+        "de": "Veröffentlicht das letzte Bild einer Wyze-Kamera, um es mit der nächsten Aktion zu senden.",
+        "es": "Publica la última imagen de una cámara Wyze, para enviarla con la siguiente acción."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "key": "published",
+          "type": "boolean",
+          "label": {
+            "en": "Image published",
+            "fr": "Image publiée",
+            "de": "Bild veröffentlicht",
+            "es": "Imagen publicada"
+          }
+        }
+      ]
+    },
+    {
+      "key": "refresh_devices",
+      "label": {
+        "en": "Refresh Wyze devices",
+        "fr": "Rafraîchir les appareils Wyze",
+        "de": "Wyze-Geräte aktualisieren",
+        "es": "Actualizar dispositivos Wyze"
+      },
+      "description": {
+        "en": "Read the Wyze devices and their states now.",
+        "fr": "Lit maintenant les appareils Wyze et leurs états.",
+        "de": "Liest die Wyze-Geräte und ihre Zustände jetzt ein.",
+        "es": "Lee ahora los dispositivos Wyze y sus estados."
+      },
+      "timeout_seconds": 120,
+      "outputs": [
+        {
+          "key": "devices",
+          "type": "number",
+          "label": {
+            "en": "Wyze devices",
+            "fr": "Appareils Wyze",
+            "de": "Wyze-Geräte",
+            "es": "Dispositivos Wyze"
+          }
+        },
+        {
+          "key": "online",
+          "type": "number",
+          "label": {
+            "en": "Devices online",
+            "fr": "Appareils en ligne",
+            "de": "Geräte online",
+            "es": "Dispositivos en línea"
+          }
+        }
+      ]
+    }
+  ],
+  "widgets": [
+    {
+      "key": "wyze_overview",
+      "label": {
+        "en": "Wyze overview",
+        "fr": "Aperçu Wyze",
+        "de": "Wyze-Übersicht",
+        "es": "Resumen Wyze"
+      },
+      "description": {
+        "en": "Devices online and offline, open doors, cloud status and last camera event.",
+        "fr": "Appareils en ligne et hors ligne, ouvertures, état du cloud, dernier événement.",
+        "de": "Geräte online/offline, offene Türen, Cloud-Status und letztes Kameraereignis.",
+        "es": "Dispositivos en línea y sin conexión, aperturas, nube y último evento."
+      },
+      "icon": "home",
+      "action_timeout_seconds": 120
+    },
+    {
+      "key": "wyze_camera",
+      "label": {
+        "en": "Wyze camera",
+        "fr": "Caméra Wyze",
+        "de": "Wyze-Kamera",
+        "es": "Cámara Wyze"
+      },
+      "description": {
+        "en": "Latest image, motion and last event of a camera, with its siren.",
+        "fr": "Dernière image, mouvement et dernier événement d'une caméra, avec sa sirène.",
+        "de": "Letztes Bild, Bewegung und letztes Ereignis einer Kamera, mit ihrer Sirene.",
+        "es": "Última imagen, movimiento y último evento de una cámara, con su sirena."
+      },
+      "icon": "video",
+      "settings": [
+        {
+          "key": "camera",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Camera",
+            "fr": "Caméra",
+            "de": "Kamera",
+            "es": "Cámara"
+          },
+          "required": true
+        }
+      ],
+      "action_timeout_seconds": 60
+    }
+  ]
+}
