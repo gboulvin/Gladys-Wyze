@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-17
+
 ### Added
 
 - Wyze account connection with the developer API key (no two-factor prompt),
@@ -34,4 +36,5 @@ the notes of the version's GitHub Release.
 - English, French, German and Spanish texts and documentation.
 - `SECURITY.md` and `CLAUDE.md`.
 
-[Unreleased]: https://github.com/gboulvin/Gladys-Wyze/commits/main
+[Unreleased]: https://github.com/gboulvin/Gladys-Wyze/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/gboulvin/Gladys-Wyze/releases/tag/v1.0.0
