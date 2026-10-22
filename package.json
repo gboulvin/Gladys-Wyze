@@ -1,6 +1,6 @@
 {
   "name": "gladys-integration-wyze",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Gladys Assistant external integration for Wyze devices: bulbs, light strips, plugs, cameras and sensors.",
   "type": "module",
