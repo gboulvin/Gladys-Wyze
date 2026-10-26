@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-26
+
 ### Changed
 
 - Requires Gladys 5.3.0 or later: the manifest declares search keywords for
@@ -52,6 +54,7 @@ the notes of the version's GitHub Release.
 - English, French, German and Spanish texts and documentation.
 - `SECURITY.md` and `CLAUDE.md`.
 
-[Unreleased]: https://github.com/gboulvin/Gladys-Wyze/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/gboulvin/Gladys-Wyze/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/gboulvin/Gladys-Wyze/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/gboulvin/Gladys-Wyze/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/gboulvin/Gladys-Wyze/releases/tag/v1.0.0
