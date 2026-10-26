@@ -1,7 +1,7 @@
 # Gladys Assistant — Wyze integration
 
 External integration for [Gladys Assistant](https://gladysassistant.com)
-(5.1 or later) that brings your [Wyze](https://www.wyze.com) devices into
+(5.3 or later) that brings your [Wyze](https://www.wyze.com) devices into
 Gladys: bulbs, light strips, plugs, cameras and Wyze Sense sensors.
 
 ![Wyze for Gladys](cover.png)
