@@ -101,6 +101,9 @@ export const camera = {
         external_id: ids.feature(CAMERA_FEATURES.IMAGE),
         category: DEVICE_FEATURE_CATEGORIES.CAMERA,
         type: DEVICE_FEATURE_TYPES.CAMERA.IMAGE,
+        // No range, but Gladys stores min / max as NOT NULL columns.
+        min: 0,
+        max: 0,
         read_only: true,
         has_feedback: false,
         keep_history: false,
