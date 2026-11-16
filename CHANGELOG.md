@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-16
+
 ### Fixed
 
 - Cameras could not be added from the Discovery screen: Gladys refused their image feature, which had no `min` / `max` ("t_device_feature.min cannot be null"). It now declares `min` / `max` 0, as Gladys requires for a feature without a range.
@@ -58,7 +60,8 @@ the notes of the version's GitHub Release.
 - English, French, German and Spanish texts and documentation.
 - `SECURITY.md` and `CLAUDE.md`.
 
-[Unreleased]: https://github.com/gboulvin/Gladys-Wyze/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/gboulvin/Gladys-Wyze/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/gboulvin/Gladys-Wyze/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/gboulvin/Gladys-Wyze/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/gboulvin/Gladys-Wyze/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/gboulvin/Gladys-Wyze/releases/tag/v1.0.0
